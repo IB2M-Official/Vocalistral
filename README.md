@@ -10,8 +10,8 @@ Le projet est réparti sur deux interfaces complémentaires :
 
 ## 🔗 Démos en ligne
 
-- **🔤 Translator** : [Traducteur](https://tonsite.com/translator)  
-- **🤖 Chat** : [Chat](https://tonsite.com/chat)
+- **🔤 Translator** : [Traducteur](https://ib2m-official.github.io/Vocalistral/translator.html)  
+- **🤖 Chat** : [Chat](https://ib2m-official.github.io/Vocalistral/chat.html)
 
 ---
 

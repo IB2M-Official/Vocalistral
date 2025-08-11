@@ -2,48 +2,65 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>VocalIstral</title>
+  <title>Ibistral Chat</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     :root {
-  --orange: #d97a00;
-  --dark: #1e1e1e;
-  --light-dark: #2c2c2c;
-  --white: #eaeaea;
-  --text-dark: #151515;
-}
+      --orange: #d97a00;
+      --dark: #1e1e1e;
+      --light-dark: #2c2c2c;
+      --white: #eaeaea;
+      --gray: #444;
+      --text-dark: #151515;
+    }
 
+    * {
+      box-sizing: border-box;
+    }
 
-    * { box-sizing: border-box; }
-    body {
+    html, body {
       margin: 0;
       font-family: sans-serif;
       background-color: var(--light-dark);
       color: var(--white);
       display: flex;
-      height: 100vh;
-      overflow: hidden;
+      height: 100%;
+      width: 100%;
+      overflow-x: hidden;
+      overflow-y: auto;
     }
 
     #sidebar {
       width: 260px;
       background: var(--dark);
       position: fixed;
+      left: 0;
+      top: 0;
       height: 100%;
       z-index: 2;
       overflow-y: auto;
       transform: translateX(-100%);
-      transition: transform 0.3s;
+      transition: transform 0.3s ease;
       padding: 1rem;
     }
-    #sidebar.visible { transform: translateX(0); }
+
+    #sidebar.visible {
+      transform: translateX(0);
+    }
 
     #main {
+      margin-left: 0;
+      transition: margin-left 0.3s;
       flex: 1;
       display: flex;
       flex-direction: column;
       height: 100vh;
-      transition: margin-left 0.3s;
+      align-items: center;
+      padding: 0 1rem;
+    }
+
+    #sidebar.visible ~ #main {
+      margin-left: 260px;
     }
 
     header {
@@ -53,6 +70,7 @@
       justify-content: space-between;
       align-items: center;
       color: white;
+      width: 100%;
     }
 
     #toggleSidebar {
@@ -69,6 +87,8 @@
       display: flex;
       flex-direction: column-reverse;
       padding: 1rem;
+      width: 100%;
+      max-width: 900px;
     }
 
     .message {
@@ -77,12 +97,16 @@
       border-radius: 12px;
       margin: 0.5rem auto;
       animation: fadeIn 0.5s ease;
+      word-wrap: break-word;
+      word-break: break-word;
     }
+
     .user {
       background: var(--orange);
       color: black;
       align-self: flex-end;
     }
+
     .bot {
       background: var(--white);
       color: var(--text-dark);
@@ -93,36 +117,24 @@
       padding: 1rem;
       background: var(--dark);
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       align-items: center;
       gap: 1rem;
-    }
-
-    .round-btn {
-      width: 70px;
-      height: 70px;
-      border-radius: 50%;
-      font-size: 2rem;
-      background: var(--orange);
-      color: white;
-      border: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
+      width: 100%;
     }
 
     #messageInput {
       width: 100%;
-      max-width: 600px;
+      max-width: 100%;
       padding: 0.75rem;
       border: none;
       border-radius: 6px;
       font-size: 1rem;
+      box-sizing: border-box;
     }
 
     .chat-list li {
-      background: #444;
+      background: var(--gray);
       color: white;
       padding: 0.5rem;
       margin: 0.5rem 0;
@@ -133,7 +145,7 @@
       align-items: center;
     }
 
-    .chat-list button {
+    .chat-list button, #closeSidebar {
       background: none;
       border: none;
       color: red;
@@ -142,45 +154,74 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 768px) {
+      #sidebar {
+        width: 200px;
+      }
+
+      body.sidebar-open #main {
+        margin-left: 200px;
+      }
+
+      #footer-controls {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      header {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 480px) {
+      #sidebar {
+        width: 160px;
+      }
+
+      body.sidebar-open #main {
+        margin-left: 160px;
+      }
     }
   </style>
 </head>
 <body>
   <div id="sidebar">
-  <button id="closeSidebar" style="float:right;font-size:1.2rem;color:white;background:none;border:none;cursor:pointer;">×</button>
-  <h3>Conversations</h3>
-  <ul id="chatList" class="chat-list"></ul>
-</div>
-
-
+    <button id="closeSidebar" style="float:right;font-size:1.2rem;color:white;background:none;border:none;cursor:pointer;">×</button>
+    <h3>Conversations</h3>
+    <ul id="chatList" class="chat-list"></ul>
+  </div>
   <div id="main">
     <header>
       <button id="toggleSidebar">☰</button>
-      <h2>VocalIstral</h2>
+      <h2>Ibistral Chat</h2>
     </header>
     <div id="chat"></div>
     <div id="footer-controls">
-      <button class="round-btn mic" onclick="startVoice()">🎤</button>
       <input id="messageInput" placeholder="Écris ici..." />
     </div>
   </div>
-
-<audio id="clickSound" src="fastwoosh4.mp3"></audio>
-
-  <script src="https://code.responsivevoice.org/responsivevoice.js?key=YLcis6Hj"></script>
+  <audio id="clickSound" src="fastwoosh4.mp3"></audio>
   <script>
     const API_KEY = "CjVcFT9mRjOtTqG7er5Z5uYe4Y6h2yjU";
     const API_URL = "https://api.mistral.ai/v1/chat/completions";
-
     const chat = document.getElementById('chat');
     const input = document.getElementById('messageInput');
     const sidebar = document.getElementById('sidebar');
     const chatList = document.getElementById('chatList');
     const toggleBtn = document.getElementById('toggleSidebar');
     const clickSound = document.getElementById('clickSound');
-
     let messages = [];
     let currentChatId;
 
@@ -194,15 +235,13 @@
       clickSound.play();
     };
 
-
     function newChat() {
-  currentChatId = Date.now().toString();
-  messages = [];
-  const name =  `Chat ${currentChatId.slice(-4)}`;
-  localStorage.setItem('chatName_' + currentChatId, name);
-  saveChatHistory();
-}
-
+      currentChatId = Date.now().toString();
+      messages = [];
+      const name = `Chat ${currentChatId.slice(-4)}`;
+      localStorage.setItem('chatName_' + currentChatId, name);
+      saveChatHistory();
+    }
 
     function saveChatHistory() {
       localStorage.setItem('chat_' + currentChatId, JSON.stringify(messages));
@@ -211,11 +250,9 @@
         ids.push(currentChatId);
         localStorage.setItem('chatIds', JSON.stringify(ids));
         if (!localStorage.getItem('chatName_' + currentChatId)) {
-  localStorage.setItem('chatName_' + currentChatId, `Chat ${currentChatId.slice(-4)}`);
-}
-
+          localStorage.setItem('chatName_' + currentChatId, `Chat ${currentChatId.slice(-4)}`);
+        }
       }
-
     }
 
     function loadChat(chatId) {
@@ -227,7 +264,6 @@
         if (!m.promptMeta) addMessage(m.content, m.role === 'user' ? 'user' : 'bot');
       });
       chat.scrollTop = 0;
-
     }
 
     function populateChatList() {
@@ -235,25 +271,23 @@
       const ids = JSON.parse(localStorage.getItem('chatIds')) || [];
       ids.forEach(id => {
         const li = document.createElement('li');
-const name = localStorage.getItem('chatName_' + id) || `Chat ${id.slice(-4)}`;
-li.innerHTML = `
-  ${name}
-  <button onclick="deleteChat('${id}')">×</button>
-  <button onclick="renameChat('${id}')">✏️</button>`;        li.onclick = () => loadChat(id);
+        const name = localStorage.getItem('chatName_' + id) || `Chat ${id.slice(-4)}`;
+        li.innerHTML = `
+          ${name}
+          <button onclick="deleteChat('${id}')">×</button>
+          <button onclick="renameChat('${id}')">✏️</button>`;
+        li.onclick = () => loadChat(id);
         chatList.appendChild(li);
       });
-      
-
     }
 
     function renameChat(id) {
-  const newName = prompt("Nouveau nom du chat :");
-  if (newName) {
-    localStorage.setItem('chatName_' + id, newName);
-    populateChatList();
-  }
-}
-
+      const newName = prompt("Nouveau nom du chat :");
+      if (newName) {
+        localStorage.setItem('chatName_' + id, newName);
+        populateChatList();
+      }
+    }
 
     function deleteChat(id) {
       localStorage.removeItem('chat_' + id);
@@ -262,81 +296,58 @@ li.innerHTML = `
       localStorage.setItem('chatIds', JSON.stringify(ids));
       populateChatList();
       localStorage.removeItem('chatName_' + id);
-
     }
 
     function addMessage(text, sender) {
       const div = document.createElement('div');
       div.className = `message ${sender}`;
       div.style.animation = 'none';
-      div.offsetHeight; // trigger reflow
+      div.offsetHeight;
       div.style.animation = null;
       div.textContent = text;
       chat.prepend(div);
-      
     }
 
     async function sendMessage(text) {
-  if (!text.trim()) return;
-
-  // Afficher le message utilisateur
-  addMessage(text, 'user');
-  messages.push({ role: 'user', content: text });
-  saveChatHistory();
-
-  // Préparer les messages sans metadata (promptMeta)
-  const cleanMessages = messages.filter(m => !m.promptMeta);
-  const systemPrompt = {
-    role: 'system',
-    content: "Réponds oralement, rapidement et sans superflu comme un assistan."
-  };
-  const fullMessages = [systemPrompt, ...cleanMessages];
-
-  try {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'mistral-medium',
-        messages: fullMessages,
-        max_tokens: 100,
-        temperature: 0.7
-      })
-    });
-
-    if (!res.ok) {
-      const errorText = await res.text();
-      console.error('Erreur API Mistral :', res.status, errorText);
-      addMessage(`[Erreur API ${res.status}]`, 'bot');
-      return;
-    }
-
-    const data = await res.json();
-    const reply = data.choices?.[0]?.message?.content || '[Pas de réponse]';
-    messages.push({ role: 'assistant', content: reply });
-    addMessage(reply, 'bot');
-    responsiveVoice.speak(reply, 'French Female');
-    saveChatHistory();
-
-  } catch (err) {
-    console.error('Erreur de requête:', err);
-    addMessage(`[Erreur réseau]`, 'bot');
-  }
-}
-
-
-    function startVoice() {
-      const recognition = new webkitSpeechRecognition();
-      recognition.lang = "fr-FR";
-      recognition.start();
-      clickSound.play();
-      recognition.onresult = (e) => {
-        const text = e.results[0][0].transcript;
-        sendMessage(text);
+      if (!text.trim()) return;
+      addMessage(text, 'user');
+      messages.push({ role: 'user', content: text });
+      saveChatHistory();
+      const cleanMessages = messages.filter(m => !m.promptMeta);
+      const systemPrompt = {
+        role: 'system',
+        content: "Réponds oralement, rapidement et sans superflu comme un assistant."
       };
+      const fullMessages = [systemPrompt, ...cleanMessages];
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: 'mistral-medium',
+            messages: fullMessages,
+            max_tokens: 100,
+            temperature: 0.7
+          })
+        });
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error('Erreur API Mistral :', res.status, errorText);
+          addMessage(`[Erreur API ${res.status}]`, 'bot');
+          return;
+        }
+        const data = await res.json();
+        const reply = data.choices?.[0]?.message?.content || '[Pas de réponse]';
+        messages.push({ role: 'assistant', content: reply });
+        addMessage(reply, 'bot');
+        saveChatHistory();
+      } catch (err) {
+        console.error('Erreur de requête:', err);
+        addMessage(`[Erreur réseau]`, 'bot');
+      }
     }
 
     input.addEventListener('keydown', e => {
@@ -347,7 +358,6 @@ li.innerHTML = `
       }
     });
 
-    // Init
     newChat();
     populateChatList();
   </script>

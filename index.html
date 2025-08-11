@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Ibistral</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --orange: #d97a00;
+      --dark: #1e1e1e;
+      --light-dark: #2c2c2c;
+      --white: #eaeaea;
+      --text-dark: #151515;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--light-dark);
+      color: var(--white);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+      text-align: center;
+      overflow-x: hidden;
+    }
+
+    h1#welcome {
+      font-size: 2.5rem;
+      color: var(--orange);
+      animation: fadeSlideDown 1s ease-out forwards;
+      margin-bottom: 2.5rem;
+      opacity: 0;
+    }
+
+    .panels {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 900px;
+      padding: 0 1rem;
+    }
+
+    .panel {
+      background-color: var(--dark);
+      padding: 2rem 1.5rem;
+      border-radius: 16px;
+      text-decoration: none;
+      color: var(--white);
+      font-size: 1.25rem;
+      font-weight: 700;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+      transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.5s;
+      transform: translateY(50px);
+      opacity: 0;
+      animation: fadeInUp 0.3s forwards;
+    }
+
+    .panel:nth-child(1) { animation-delay: 0.3s; }
+    .panel:nth-child(2) { animation-delay: 0.5s; }
+    .panel:nth-child(3) { animation-delay: 0.7s; }
+    .panel:nth-child(4) { animation-delay: 0.9s; }
+    .panel:nth-child(5) { animation-delay: 0.5s; }
+    .panel:nth-child(6) { animation-delay: 0.3s; }
+    .panel:nth-child(7) { animation-delay: 0.7s; }
+
+    .panel:hover {
+      background-color: var(--orange);
+      color: var(--text-dark);
+      transform: translateY(-5px) scale(1.03);
+      box-shadow: 0 12px 24px rgba(255, 165, 0, 0.4);
+    }
+
+    @keyframes fadeSlideDown {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 600px) {
+      h1#welcome {
+        font-size: 2rem;
+      }
+
+      .panel {
+        font-size: 1.1rem;
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1 id="welcome">Bienvenue sur Ibistral</h1>
+
+  <div class="panels">
+    <a class="panel" href="chat.html">💬 Chat</a>
+    <a class="panel" href="vocalistral.html">🎤 VocalIstral</a>
+    <a class="panel" href="traducteur_ia.html">🈂️ Traducteur AI</a>
+    <a class="panel" href="picstral.html">🖼️ Picstral</a>
+    <a class="panel" href="webstral.html">🌐 Webstral</a>
+    <a class="panel" href="scanstral.html">🏷️ Scanstral</a>
+    <a class="panel" href="analystral.html">🏷️ Analystral</a>
+  </div>
+</body>
+</html>

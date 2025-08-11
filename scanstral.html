@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Scanstral</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --orange: #d97a00;
+      --dark: #1e1e1e;
+      --light-dark: #2c2c2c;
+      --white: #eaeaea;
+      --gray: #444;
+      --text-dark: #151515;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      font-family: sans-serif;
+      background-color: var(--light-dark);
+      color: var(--white);
+      display: flex;
+      height: 100%;
+      width: 100%;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    #main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      align-items: center;
+      padding: 0 1rem;
+    }
+
+    header {
+      background: var(--orange);
+      padding: 1rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      width: 100%;
+    }
+
+    #upload-section {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+      gap: 1rem;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    #imageInput {
+      display: none;
+    }
+
+    #imageLabel {
+      background: var(--orange);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+
+    #previewImage {
+      max-width: 100%;
+      max-height: 300px;
+      margin-top: 10px;
+      display: none;
+      border-radius: 8px;
+    }
+
+    #description {
+      width: 100%;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      box-sizing: border-box;
+      margin-bottom: 1rem;
+    }
+
+    #analyzeBtn {
+      padding: 0.75rem 2rem;
+      font-size: 1.2rem;
+      background: var(--orange);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      color: white;
+    }
+
+    #aiResponse {
+      background: var(--dark);
+      padding: 1rem;
+      border-radius: 10px;
+      margin-top: 1rem;
+      max-width: 900px;
+      width: 100%;
+      overflow-y: auto;
+      max-height: 500px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="main">
+    <header>
+      <h1>Scanstral</h1>
+    </header>
+    <div id="upload-section">
+      <label id="imageLabel" for="imageInput">📤 Télécharger une image</label>
+      <input type="file" id="imageInput" accept="image/png, image/jpeg, image/jpg">
+      <img id="previewImage" />
+      <textarea id="description" placeholder="Décrivez l'image..."></textarea>
+      <button id="analyzeBtn" onclick="analyzeImage()">Analyser</button>
+    </div>
+    <div id="aiResponse" class="hidden"></div>
+  </div>
+
+  <script>
+    const API_KEY = "CjVcFT9mRjOtTqG7er5Z5uYe4Y6h2yjU";
+    const API_URL = "https://api.mistral.ai/v1/chat/completions";
+    const imageInput = document.getElementById('imageInput');
+    const previewImage = document.getElementById('previewImage');
+    const description = document.getElementById('description');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const aiResponse = document.getElementById('aiResponse');
+    let imageBase64 = null;
+
+    imageInput.onchange = e => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          imageBase64 = reader.result;
+          previewImage.src = imageBase64;
+          previewImage.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      } else {
+        previewImage.style.display = 'none';
+        previewImage.src = '';
+        imageBase64 = null;
+      }
+    };
+
+    async function analyzeImage() {
+      const descriptionText = description.value.trim();
+      if (!imageBase64 || !descriptionText) {
+        alert('Veuillez télécharger une image et la décrire.');
+        return;
+      }
+
+      try {
+        aiResponse.classList.remove('hidden');
+        aiResponse.textContent = "Analyse en cours...";
+
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: 'mistral-medium',
+            messages: [
+              {
+                role: 'user',
+                content: [
+                  { type: 'text', text: `Analyse cette image et recherche des informations sur les éléments suivants : ${descriptionText}. Organise ta réponse en différentes parties avec les titres suivants : Description, Prix, Matière, Tendances, Sites de vente, Marché. Ne pas utiliser de caractères spéciaux ou de formatage Markdown.` },
+                  { type: 'image_url', image_url: { url: imageBase64 } }
+                ]
+              }
+            ],
+            max_tokens: 1024
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Erreur API: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const analysis = data.choices?.[0]?.message?.content || 'Aucune information trouvée.';
+
+        aiResponse.textContent = analysis;
+      } catch (error) {
+        console.error('Erreur:', error);
+        aiResponse.textContent = `Erreur lors de l'analyse de l'image: ${error.message}`;
+      }
+    }
+  </script>
+</body>
+</html>

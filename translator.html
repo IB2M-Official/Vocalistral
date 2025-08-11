@@ -1,476 +1,410 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Traduction IA Multilingue</title>
-  <style>
-    :root {
-      --orange: #ff9800;
-      --dark: #1a1a1a;
-      --light-dark: #2e2e2e;
-      --white: #f0f0f0;
-      --gray: #444;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background-color: var(--light-dark);
-      color: var(--white);
-      display: flex;
-      height: 100vh;
-      overflow: hidden;
-    }
-    #sidebar {
-      width: 260px;
-      background: var(--dark);
-      position: fixed;
-      height: 100%;
-      z-index: 2;
-      overflow-y: auto;
-      transform: translateX(-100%);
-      transition: transform 0.3s;
-      padding: 1rem;
-    }
-    #sidebar.visible { transform: translateX(0); }
-    #main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      margin-left: 0;
-      transition: margin-left 0.3s;
-    }
-    header {
-      background: var(--orange);
-      padding: 1rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: white;
-    }
-    #toggleSidebar {
-      font-size: 1.5rem;
-      background: none;
-      border: none;
-      color: var(--white);
-      cursor: pointer;
-    }
-    #translate-section {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      padding: 1rem;
-      gap: 1rem;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    .lang-block {
-      background: var(--gray);
-      padding: 1rem;
-      border-radius: 10px;
-      position: relative;
-      transition: background 0.3s;
-    }
-    .lang-block input[list] {
-      width: 100%;
-      padding: 0.5rem;
-      font-size: 1rem;
-      border-radius: 6px;
-      border: none;
-      margin-bottom: 0.5rem;
-    }
-    textarea {
-      width: 100%;
-      resize: vertical;
-      min-height: 100px;
-      font-size: 1rem;
-      padding: 0.5rem;
-      border-radius: 6px;
-      border: none;
-    }
+  <meta charset="UTF-8">
+  <title>Vocalistral Traducteur</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  :root {
+    --orange: #ff9800;
+    --dark: #1a1a1a;
+    --light-dark: #2e2e2e;
+    --white: #f0f0f0;
+    --gray: #444;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: var(--light-dark);
+    color: var(--white);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  #sidebar {
+    width: 260px;
+    background: var(--dark);
+    position: fixed;
+    height: 100%;
+    z-index: 2;
+    overflow-y: auto;
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+    padding: 1rem;
+  }
+
+  #sidebar.visible { transform: translateX(0); }
+
+  #main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    margin-left: 0;
+    transition: margin-left 0.3s;
+  }
+
+  header {
+    background: var(--orange);
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+  }
+
+  #toggleSidebar {
+    font-size: 1.5rem;
+    background: none;
+    border: none;
+    color: var(--white);
+    cursor: pointer;
+  }
+
+  #translate-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 1rem;
+    gap: 1rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .lang-block {
+    background: var(--gray);
+    padding: 1rem;
+    border-radius: 10px;
+    position: relative;
+  }
+
+  .lang-block select {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: none;
+    margin-bottom: 0.5rem;
+  }
+
+  textarea {
+    width: 100%;
+    resize: vertical;
+    min-height: 100px;
+    font-size: 1rem;
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: none;
+  }
+
+  .btn-row {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .mic-btn, .listen-btn, .pause-btn {
+    background: var(--orange);
+    color: black;
+    border-radius: 6px;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-size: 1.1rem;
+  }
+
+  #translateRow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  #translateBtn {
+    padding: 0.75rem 2rem;
+    font-size: 1.2rem;
+    background: var(--orange);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  #swapBtn {
+    background: none;
+    border: none;
+    color: var(--white);
+    font-size: 1.8rem;
+    cursor: pointer;
+    transition: transform 0.4s ease;
+  }
+
+  #swapBtn.animate {
+    transform: rotate(180deg);
+  }
+
+  ul.chat-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .chat-list li {
+    background: #444;
+    color: white;
+    padding: 0.5rem;
+    margin: 0.5rem 0;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .chat-list button {
+    background: none;
+    border: none;
+    color: red;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  @media (max-width: 600px) {
     .btn-row {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 0.5rem;
+      flex-direction: column;
+      align-items: stretch;
     }
-    .mic-btn, .listen-btn, .pause-btn {
-      background: var(--orange);
-      color: black;
-      border-radius: 6px;
-      border: none;
-      padding: 0.5rem 1rem;
-      cursor: pointer;
-      font-size: 1.1rem;
-      transition: background 0.3s;
-    }
-    #translateRow {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 1rem;
-    }
-    #translateBtn {
-      padding: 0.75rem 2rem;
-      font-size: 1.2rem;
-      background: var(--orange);
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    #swapBtn {
-      background: none;
-      border: none;
-      color: var(--white);
-      font-size: 1.8rem;
-      cursor: pointer;
-      transition: transform 0.4s ease;
-    }
-    #swapBtn.animate {
-      transform: rotate(180deg);
-    }
-    ul.chat-list {
-      list-style: none;
-      padding: 0;
-    }
-    .chat-list li {
-      background: #444;
-      color: white;
-      padding: 0.5rem;
-      margin: 0.5rem 0;
-      border-radius: 4px;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    #closeSidebar {
-      background: none;
-      border: none;
-      color: red;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    @media (max-width: 600px) {
-      .btn-row {
-        flex-direction: column;
-        align-items: stretch;
-      }
-    }
-    .thinking {
-      animation: pulse 1.5s infinite;
-    }
-    @keyframes pulse {
-      0% { background-color: var(--gray); }
-      50% { background-color: #555; }
-      100% { background-color: var(--gray); }
-    }
-  </style>
+  }
+</style>
+
 </head>
 <body>
-  <div id="sidebar" class="sidebar" class="chat-list">
-    <h2>Historique</h2>
-    <button id="closeSidebar">Fermer</button>
-    <ul id="chatList" class="chat-list"></ul>
 
-</div>
-    
+  <div id="sidebar">
+    <button id="closeSidebar" style="float:right;font-size:1.2rem;color:white;background:none;border:none;cursor:pointer;">×</button>
+    <h3>Conversations</h3>
+    <ul id="chatList" class="chat-list"></ul>
+  </div>
 
   <div id="main">
     <header>
       <button id="toggleSidebar">☰</button>
-      <h1>Traducteur IA</h1>
+      <h2>Vocalistral Traducteur</h2>
     </header>
     <div id="translate-section">
-      <div class="lang-block" id="topBlock">
+      <div class="lang-block">
         <input id="topLangInput" list="langList" placeholder="Langue source">
-        <datalist id="langList"></datalist>
+<input id="bottomLangInput" list="langList" placeholder="Langue cible">
+<datalist id="langList"></datalist>
+
         <div class="btn-row">
-          <button class="mic-btn" onclick="startVoice('top')">🎤 Parler</button>
-          <button class="listen-btn" onclick="speakTop()">🔈 Écouter</button>
-          <button class="pause-btn" onclick="speechSynthesis.cancel()">⏸ Pause</button>
-        </div>
-        <textarea id="topText" placeholder="Texte à traduire..."></textarea>
+  <button class="mic-btn" onclick="startVoice('top')">🎤 Parler</button>
+  <button class="listen-btn" onclick="speakTop()">🔈 Écouter</button>
+  <button class="pause-btn" onclick="speechSynthesis.cancel()">⏸ Pause</button>
+</div>
+
+        <textarea id="topText" placeholder="Parle ou écris ici..."></textarea>
       </div>
+<div id="translateRow">
+  <button id="translateBtn">Traduire ⮞</button>
+  <button id="swapBtn" title="Inverser les langues">🔁</button>
+</div>
+      <div class="lang-block">
+        <input id="topLangInput" list="langList" placeholder="Langue source">
+<input id="bottomLangInput" list="langList" placeholder="Langue cible">
+<datalist id="langList"></datalist>
 
-      <div id="translateRow">
-        <button id="translateBtn">Traduire ⮞</button>
-        <p id="translationInfo" style="margin-top: 10px; font-style: italic; color: #666;"></p>
-
-        <button id="swapBtn" title="Inverser les langues">🔁</button>
-      </div>
-
-      <div class="lang-block" id="bottomBlock">
-        <input id="bottomLangInput" list="langList" placeholder="Langue cible">
         <div class="btn-row">
-          <button class="listen-btn" onclick="speakBottom()">🔈 Écouter</button>
-          <button class="pause-btn" onclick="speechSynthesis.cancel()">⏸ Pause</button>
-        </div>
-        <textarea id="bottomText" placeholder="Traduction..."></textarea>
+  <button class="listen-btn" onclick="speakBottom()">🔈 Écouter</button>
+  <button class="pause-btn" onclick="speechSynthesis.cancel()">⏸ Pause</button>
+</div>
+
+        <textarea id="bottomText" readonly placeholder="Traduction..."></textarea>
       </div>
     </div>
   </div>
 
-<script>
-  const topText = document.getElementById("topText");
-  const bottomText = document.getElementById("bottomText");
-  const topLangInput = document.getElementById("topLangInput");
-  const bottomLangInput = document.getElementById("bottomLangInput");
-  const translationInfo = document.getElementById("translationInfo");
-const languages = {
-    "af": "Afrikaans", "ar": "Arabic", "az": "Azerbaijani", "bg": "Bulgarian", "bn": "Bengali",
-    "ca": "Catalan", "cs": "Czech", "da": "Danish", "de": "German", "el": "Greek", "en": "English",
-    "es": "Spanish", "et": "Estonian", "fa": "Persian", "fi": "Finnish", "fr": "French", "gu": "Gujarati",
-    "he": "Hebrew", "hi": "Hindi", "hr": "Croatian", "hu": "Hungarian", "id": "Indonesian", "it": "Italian",
-    "ja": "Japanese", "jv": "Javanese", "ka": "Georgian", "kn": "Kannada", "ko": "Korean", "lt": "Lithuanian",
-    "lv": "Latvian", "ml": "Malayalam", "mr": "Marathi", "ms": "Malay", "nb": "Norwegian", "nl": "Dutch",
-    "pl": "Polish", "pt": "Portuguese", "ro": "Romanian", "ru": "Russian", "sk": "Slovak", "sl": "Slovenian",
-    "sr": "Serbian", "sv": "Swedish", "ta": "Tamil", "te": "Telugu", "th": "Thai", "tr": "Turkish",
-    "uk": "Ukrainian", "ur": "Urdu", "vi": "Vietnamese", "zh": "Chinese"
-  };
+  <script>
+    const API_KEY = "CjVcFT9mRjOtTqG7er5Z5uYe4Y6h2yjU"; // Remplace ici
+    const API_URL = "https://api.mistral.ai/v1/chat/completions";
 
-  const fallbackVoices = {
-    "af": "Afrikaans Male",
-    "ar": "Arabic Male",
-    "az": "UK English Female",
-    "bg": "Bulgarian Male",
-    "bn": "UK English Female",
-    "ca": "Catalan Male",
-    "cs": "Czech Female",
-    "da": "Danish Female",
-    "de": "German Female",
-    "el": "Greek Female",
-    "en": "UK English Female",
-    "es": "Spanish Female",
-    "et": "Estonian Male",
-    "fa": "UK English Female",
-    "fi": "Finnish Female",
-    "fr": "French Female",
-    "gu": "UK English Female",
-    "he": "Hebrew Male",
-    "hi": "Hindi Female",
-    "hr": "Croatian Male",
-    "hu": "Hungarian Female",
-    "id": "Indonesian Female",
-    "it": "Italian Female",
-    "ja": "Japanese Female",
-    "jv": "UK English Female",
-    "ka": "UK English Female",
-    "kn": "UK English Female",
-    "ko": "Korean Female",
-    "lt": "Lithuanian Male",
-    "lv": "Latvian Male",
-    "ml": "UK English Female",
-    "mr": "UK English Female",
-    "ms": "UK English Female",
-    "nb": "Norwegian Female",
-    "nl": "Dutch Female",
-    "pl": "Polish Female",
-    "pt": "Portuguese Female",
-    "ro": "Romanian Male",
-    "ru": "Russian Female",
-    "sk": "Slovak Female",
-    "sl": "Slovenian Male",
-    "sr": "Serbian Male",
-    "sv": "Swedish Female",
-    "ta": "Tamil Male",
-    "te": "UK English Female",
-    "th": "Thai Female",
-    "tr": "Turkish Female",
-    "uk": "Ukrainian Male",
-    "ur": "UK English Female",
-    "vi": "Vietnamese Female",
-    "zh": "Chinese Female"
-  };
+    const topLang = document.getElementById("topLang");
+    const bottomLang = document.getElementById("bottomLang");
+    const topText = document.getElementById("topText");
+    const bottomText = document.getElementById("bottomText");
+    const chatList = document.getElementById("chatList");
 
-  let currentChatId = localStorage.getItem('currentChatId') || Date.now().toString();
-  let chatHistory = JSON.parse(localStorage.getItem('chat_' + currentChatId)) || [];
-
-  function populateLanguages() {
-    const langList = document.getElementById("langList");
-    for (const [code, name] of Object.entries(languages)) {
-      const option = document.createElement("option");
-      option.value = `${name} [${code}]`;
-      langList.appendChild(option);
-    }
-  }
-
-  function getLangCode(inputValue) {
-    const match = inputValue.match(/\[(.*?)\]/);
-    return match ? match[1] : "en";
-  }
-
-  function speakText(text, inputValue) {
-    const langCode = getLangCode(inputValue);
-    const selectedVoice = fallbackVoices[langCode] || "UK English Female";
-    responsiveVoice.speak(text, selectedVoice);
-  }
-
-  function speakTop() { speakText(topText.value, topLangInput.value); }
-  function speakBottom() { speakText(bottomText.value, bottomLangInput.value); }
-  function pauseSpeech() { responsiveVoice.cancel(); }
-
-  function startVoice(location) {
-    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    const lang = getLangCode(location === "top" ? topLangInput.value : bottomLangInput.value);
-    recognition.lang = lang;
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    const target = location === "top" ? topText : bottomText;
-    target.placeholder = "🎙️ Écoute en cours...";
-    recognition.start();
-
-    recognition.onresult = (event) => {
-      target.value = event.results[0][0].transcript;
-      target.placeholder = "";
+    const languages = {
+      "af": "Afrikaans", "ar": "Arabic", "bn": "Bengali", "zh": "Chinese",
+      "en": "English", "fr": "French", "de": "German", "hi": "Hindi",
+      "it": "Italian", "ja": "Japanese", "ko": "Korean", "pt": "Portuguese",
+      "ru": "Russian", "es": "Spanish", "tr": "Turkish", "nl": "Dutch",
+      "pl": "Polish", "ro": "Romanian", "sv": "Swedish", "vi": "Vietnamese"
+      "af": "Afrikaans", "ar": "Arabic", "az": "Azerbaijani", "bg": "Bulgarian",
+    "bn": "Bengali", "ca": "Catalan", "cs": "Czech", "da": "Danish", "de": "German",
+    "el": "Greek", "en": "English", "es": "Spanish", "et": "Estonian", "fa": "Persian",
+    "fi": "Finnish", "fr": "French", "gu": "Gujarati", "he": "Hebrew", "hi": "Hindi",
+    "hr": "Croatian", "hu": "Hungarian", "id": "Indonesian", "it": "Italian", "ja": "Japanese",
+    "jv": "Javanese", "ka": "Georgian", "kn": "Kannada", "ko": "Korean", "lt": "Lithuanian",
+    "lv": "Latvian", "ml": "Malayalam", "mr": "Marathi", "ms": "Malay", "nb": "Norwegian",
+    "nl": "Dutch", "pl": "Polish", "pt": "Portuguese", "ro": "Romanian", "ru": "Russian",
+    "sk": "Slovak", "sl": "Slovenian", "sr": "Serbian", "sv": "Swedish", "ta": "Tamil",
+    "te": "Telugu", "th": "Thai", "tr": "Turkish", "uk": "Ukrainian", "ur": "Urdu",
+    "vi": "Vietnamese", "zh": "Chinese"
     };
-    recognition.onerror = () => { target.placeholder = "Erreur micro"; };
+
+    function populateLanguages() {
+  const langList = document.getElementById("langList");
+  for (const [code, name] of Object.entries(languages)) {
+    const option = document.createElement("option");
+    option.value = `${name} [${code}]`;
+    langList.appendChild(option);
   }
+}
 
-  document.getElementById("toggleSidebar").onclick = () => {
-    document.getElementById("sidebar").classList.toggle("visible");
-  };
+function getLangCode(inputValue) {
+  const match = inputValue.match(/\[(.*?)\]/);
+  return match ? match[1] : "en";
+}
 
-  document.getElementById("closeSidebar").onclick = () => {
-    document.getElementById("sidebar").classList.remove("visible");
-  };
 
-  document.getElementById("swapBtn").onclick = () => {
-    const btn = document.getElementById("swapBtn");
-    [topLangInput.value, bottomLangInput.value] = [bottomLangInput.value, topLangInput.value];
-    [topText.value, bottomText.value] = [bottomText.value, topText.value];
-    btn.classList.add("animate");
-    setTimeout(() => btn.classList.remove("animate"), 400);
-  };
+    populateLanguages();
 
-  document.getElementById("translateBtn").onclick = async () => {
-    const topBlock = document.getElementById("topBlock");
-    topBlock.classList.add("thinking");
+    document.getElementById("toggleSidebar").onclick = () => {
+      document.getElementById("sidebar").classList.toggle("visible");
+    };
+    document.getElementById("closeSidebar").onclick = () => {
+      document.getElementById("sidebar").classList.remove("visible");
+    };
 
-    const topLang = getLangCode(topLangInput.value);
-    const bottomLang = getLangCode(bottomLangInput.value);
-    const prompt = `Traduire de manière sémantique du ${languages[topLang]} au ${languages[bottomLang]} : ${topText.value}. En rendant seulement le texte traduit sémantiquement, sans commentaire.`;
+    async function translateText() {
+      const input = topText.value.trim();
+      if (!input) return;
 
-    translationInfo.textContent = `Traduction du ${languages[topLang]} vers ${languages[bottomLang]} :`;
+      const from = getLangCode(topLangInput.value);
+      const to = bottomLang.value;
 
-    try {
-      const res = await fetch("https://api.mistral.ai/v1/chat/completions", {
-        method: "POST",
+      const prompt = `Traduis ce texte sémantiquement du ${languages[from]} vers le ${languages[to]} : "${input}". Renvoie que le texte traduit sémantiquement.`;
+
+      const messages = [
+        { role: "system", content: "Tu es un assistant traducteur en sens qui ne renvoie que le texte traduit.." },
+        { role: "user", content: prompt }
+      ];
+
+      const res = await fetch(API_URL, {
+        method: 'POST',
         headers: {
-          "Authorization": "Bearer CjVcFT9mRjOtTqG7er5Z5uYe4Y6h2yjU",
-          "Content-Type": "application/json"
+          'Authorization': `Bearer ${API_KEY}`,
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: "mistral-large-latest",
-          messages: [{ role: "user", content: prompt }],
-          temperature: 0.3,
-          max_tokens: 300
+          model: 'mistral-large-latest',
+          messages,
+          max_tokens: 200,
+          temperature: 0.5
         })
       });
 
+      if (!res.ok) {
+        bottomText.value = `[Erreur API ${res.status}]`;
+        return;
+      }
+
       const data = await res.json();
-      const result = data.choices?.[0]?.message?.content || "Erreur de traduction.";
-      bottomText.value = result;
-
-      // 🔁 Save chat
-      chatHistory.push({ role: "user", content: topText.value });
-      chatHistory.push({ role: "assistant", content: result });
-      localStorage.setItem("chat_" + currentChatId, JSON.stringify(chatHistory));
-      localStorage.setItem("currentChatId", currentChatId);
-      saveChatHistory();
-      populateChatList();
-    } catch (err) {
-      bottomText.value = "Erreur lors de la requête.";
+      const translated = data.choices?.[0]?.message?.content || "[Pas de réponse]";
+      bottomText.value = translated;
+      saveHistory(input, translated);
     }
 
-    topBlock.classList.remove("thinking");
-  };
+    document.getElementById("translateBtn").onclick = translateText;
 
-  function newChat() {
-    currentChatId = Date.now().toString();
-    chatHistory = [];
-    localStorage.setItem('chatName_' + currentChatId, `Chat ${currentChatId.slice(-4)}`);
-    saveChatHistory();
-    populateChatList();
-  }
-
-  function saveChatHistory() {
-    localStorage.setItem('chat_' + currentChatId, JSON.stringify(chatHistory));
-    let ids = JSON.parse(localStorage.getItem('chatIds')) || [];
-    if (!ids.includes(currentChatId)) {
-      ids.push(currentChatId);
-      localStorage.setItem('chatIds', JSON.stringify(ids));
+    function startVoice(target) {
+      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = getLangCode(topLangInput.value);
+      recognition.start();
+      recognition.onresult = e => {
+        const text = e.results[0][0].transcript;
+        if (target === 'top') {
+          topText.value = text;
+        }
+      };
     }
-  }
 
-  function loadChat(chatId) {
-    currentChatId = chatId;
-    localStorage.setItem('currentChatId', chatId);
-    chatHistory = JSON.parse(localStorage.getItem('chat_' + chatId)) || [];
+    function speakBottom() {
+      const utterance = new SpeechSynthesisUtterance(bottomText.value);
+      utterance.lang = bottomLang.value;
+      const voice = speechSynthesis.getVoices().find(v => v.lang.startsWith(bottomLang.value));
+      if (voice) utterance.voice = voice;
+      speechSynthesis.speak(utterance);
+    }
 
-    const lastUser = chatHistory.findLast(m => m.role === "user");
-    const lastAssistant = chatHistory.findLast(m => m.role === "assistant");
-    topText.value = lastUser?.content || '';
-    bottomText.value = lastAssistant?.content || '';
-  }
+    // Précharger les voix
+    window.speechSynthesis.onvoiceschanged = () => {};
 
-  function populateChatList() {
-    const chatList = document.getElementById('chatList');
-    chatList.innerHTML = '';
-    const ids = JSON.parse(localStorage.getItem('chatIds')) || [];
-    ids.forEach(id => {
-      const li = document.createElement('li');
-      const name = localStorage.getItem('chatName_' + id) || `Chat ${id.slice(-4)}`;
-      li.innerHTML = `
-        ${name}
-        <button onclick="deleteChat('${id}')">×</button>
-        <button onclick="renameChat('${id}')">✏️</button>`;
-      li.onclick = () => loadChat(id);
-      chatList.appendChild(li);
-    });
-  }
-
-  function renameChat(id) {
-    const newName = prompt("Nouveau nom du chat :");
-    if (newName) {
-      localStorage.setItem('chatName_' + id, newName);
+    // Historique
+    let history = JSON.parse(localStorage.getItem("translations") || "[]");
+    function saveHistory(original, translated) {
+      const id = Date.now();
+      const item = { id, original, translated };
+      history.unshift(item);
+      localStorage.setItem("translations", JSON.stringify(history));
       populateChatList();
     }
-  }
 
-  function deleteChat(id) {
-    localStorage.removeItem('chat_' + id);
-    localStorage.removeItem('chatName_' + id);
-    let ids = JSON.parse(localStorage.getItem('chatIds')) || [];
-    ids = ids.filter(i => i !== id);
-    localStorage.setItem('chatIds', JSON.stringify(ids));
+    function populateChatList() {
+      chatList.innerHTML = "";
+      history.forEach(item => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          ${item.original.slice(0, 12)}...
+          <button onclick="deleteChat(${item.id})">×</button>
+        `;
+        li.onclick = () => {
+          topText.value = item.original;
+          bottomText.value = item.translated;
+        };
+        chatList.appendChild(li);
+      });
+    }
+
+    function deleteChat(id) {
+      history = history.filter(item => item.id !== id);
+      localStorage.setItem("translations", JSON.stringify(history));
+      populateChatList();
+    }
+
+    document.getElementById("swapBtn").onclick = () => {
+  const topLangVal = getLangCode(topLangInput.value);
+  getLangCode(topLangInput.value) = bottomLang.value;
+  bottomLang.value = topLangVal;
+
+  const topTextVal = topText.value;
+  topText.value = bottomText.value;
+  bottomText.value = topTextVal;
+
+  const btn = document.getElementById("swapBtn");
+  btn.classList.add("animate");
+  setTimeout(() => btn.classList.remove("animate"), 400);
+};
+
+function speakTop() {
+  const utterance = new SpeechSynthesisUtterance(topText.value);
+  utterance.lang = getLangCode(topLangInput.value);
+  const voice = speechSynthesis.getVoices().find(v => v.lang.startsWith(getLangCode(topLangInput.value)));
+  if (voice) utterance.voice = voice;
+  speechSynthesis.speak(utterance);
+}
+
+
+
     populateChatList();
-  }
 
-  window.addEventListener('DOMContentLoaded', () => {
-    populateLanguages();
-    populateChatList();
-
-    chatHistory.forEach(m => {
-      if (m.role === 'user') topText.value = m.content;
-      if (m.role === 'assistant') bottomText.value = m.content;
-    });
-  });
-
-  window.speakTop = speakTop;
-  window.speakBottom = speakBottom;
-  window.pauseSpeech = pauseSpeech;
-  window.startVoice = startVoice;
-  window.renameChat = renameChat;
-  window.deleteChat = deleteChat;
-</script>
-<script src="https://code.responsivevoice.org/responsivevoice.js?key=YLcis6Hj"></script>
-
+    
+  </script>
 </body>
 </html>

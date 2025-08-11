@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Analystral</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --orange: #d97a00;
+      --dark: #1e1e1e;
+      --light-dark: #2c2c2c;
+      --white: #eaeaea;
+      --gray: #444;
+      --text-dark: #151515;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      font-family: sans-serif;
+      background-color: var(--light-dark);
+      color: var(--white);
+      display: flex;
+      height: 100%;
+      width: 100%;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    #main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      align-items: center;
+      padding: 0 1rem;
+    }
+
+    header {
+      background: var(--orange);
+      padding: 1rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      width: 100%;
+    }
+
+    #query-section {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+      gap: 1rem;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    #query {
+      width: 100%;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      box-sizing: border-box;
+      margin-bottom: 1rem;
+    }
+
+    #analyzeBtn {
+      padding: 0.75rem 2rem;
+      font-size: 1.2rem;
+      background: var(--orange);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      color: white;
+    }
+
+    #aiResponse {
+      background: var(--dark);
+      padding: 1rem;
+      border-radius: 10px;
+      margin-top: 1rem;
+      max-width: 900px;
+      width: 100%;
+      overflow-y: auto;
+      max-height: 500px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="main">
+    <header>
+      <h1>Analystral</h1>
+    </header>
+    <div id="query-section">
+      <textarea id="query" placeholder="Posez une question ou décrivez le sujet à analyser..."></textarea>
+      <button id="analyzeBtn" onclick="analyzeQuery()">Analyser</button>
+    </div>
+    <div id="aiResponse" class="hidden"></div>
+  </div>
+
+  <script>
+    const API_KEY = "CjVcFT9mRjOtTqG7er5Z5uYe4Y6h2yjU";
+    const API_URL = "https://api.mistral.ai/v1/chat/completions";
+    const queryInput = document.getElementById('query');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const aiResponse = document.getElementById('aiResponse');
+
+    async function analyzeQuery() {
+      const queryText = queryInput.value.trim();
+      if (!queryText) {
+        alert('Veuillez poser une question ou décrire le sujet à analyser.');
+        return;
+      }
+
+      try {
+        aiResponse.classList.remove('hidden');
+        aiResponse.textContent = "Analyse en cours...";
+
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: 'mistral-medium',
+            messages: [
+              {
+                role: 'user',
+                content: `Fournis des informations précises et vérifiées sur le sujet suivant : ${queryText}. Organise ta réponse en différentes parties avec les titres suivants : Description, Sources, Chercheurs, Statistiques, Revues scientifiques. Ne pas utiliser de caractères spéciaux ou de formatage Markdown.`
+              }
+            ],
+            max_tokens: 1024
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Erreur API: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const analysis = data.choices?.[0]?.message?.content || 'Aucune information trouvée.';
+
+        aiResponse.textContent = analysis;
+      } catch (error) {
+        console.error('Erreur:', error);
+        aiResponse.textContent = `Erreur lors de l'analyse de la requête: ${error.message}`;
+      }
+    }
+  </script>
+</body>
+</html>
